@@ -8,6 +8,13 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.ts",
+    "start": "yarn build && node dist/index.js",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/**/*.ts",
+    "lint:format": "eslint src/**/*.ts --fix",
+    "build": "tsc -p .",
+    "build:watch": "tsc --watch",
     "prepare": "husky install"
   },
   "keywords": [],

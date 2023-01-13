@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
+import 'dotenv/config';
 
 const config = {
   API_VERSION: process.env.API_VERSION,

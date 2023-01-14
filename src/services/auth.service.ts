@@ -56,7 +56,35 @@ export class AuthService {
         message: error.details[0].message,
         statusCode: 400,
       };
-    return 'login';
+
+    //transform email to lowercase
+    const formattedEmail = this.formatEmail(email);
+
+    //check if email is correct
+    const user = await db<USER>('users').where({ email: formattedEmail }).first();
+    if (!user)
+      return {
+        error: true,
+        message: 'Email or Password is incorrect',
+        statusCode: 400,
+      };
+
+    //check if password is correct
+    const isPassword = await bcrypt.compare(password, user.password);
+    if (!isPassword)
+      return {
+        error: true,
+        message: 'Email or Password is incorrect',
+        statusCode: 400,
+      };
+
+    //getToken
+
+    return {
+      statusCode: 200,
+      data: null,
+      user,
+    };
   }
 
   async findUserByEmail(email: string) {

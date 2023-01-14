@@ -1,4 +1,6 @@
 import bcrypt from 'bcrypt';
+import JWT from 'jsonwebtoken';
+import config from '../config';
 
 import { db } from '../database/knexConfig';
 import { USER } from '../models';
@@ -37,6 +39,7 @@ export class AuthService {
     const user = await db<USER>('users').insert({ firstName, lastName, password: hashPassword, email: formattedEmail });
 
     //on creating user, create wallet for user
+    //yet to do
 
     return {
       success: true,
@@ -79,11 +82,12 @@ export class AuthService {
       };
 
     //getToken
+    const token = this.getToken(user);
 
     return {
+      message: 'Login successful',
+      data: token,
       statusCode: 200,
-      data: null,
-      user,
     };
   }
 
@@ -98,6 +102,18 @@ export class AuthService {
 
   formatEmail(email: string) {
     return email.toLowerCase();
+  }
+
+  getToken(user: USER) {
+    return JWT.sign(
+      {
+        iat: Date.now(),
+        iss: 'Democredit',
+        userId: user.id,
+      },
+      config.SECRET_KEY,
+      { expiresIn: '48h' },
+    );
   }
 }
 

@@ -1,16 +1,17 @@
 import type { Knex } from 'knex';
+import dotenv from 'dotenv';
 
-import config from '../config';
+dotenv.config({ path: '../../.env' });
 
 // Update with your config settings.
 
 const knexConfig: { [key: string]: Knex.Config } = {
   development: {
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
-      database: config.DB_NAME,
-      user: config.DB_USERNAME,
-      password: config.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
     },
     pool: {
       min: 2,
@@ -24,9 +25,9 @@ const knexConfig: { [key: string]: Knex.Config } = {
   production: {
     client: 'mysql',
     connection: {
-      database: config.DB_NAME,
-      user: config.DB_USERNAME,
-      password: config.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
     },
     pool: {
       min: 2,
@@ -34,14 +35,15 @@ const knexConfig: { [key: string]: Knex.Config } = {
     },
     migrations: {
       tableName: 'knex_migrations',
+      directory: './migrations',
     },
   },
   test: {
     client: 'mysql',
     connection: {
-      database: config.DB_NAME,
-      user: config.DB_USERNAME,
-      password: config.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
     },
     pool: {
       min: 2,
@@ -49,6 +51,7 @@ const knexConfig: { [key: string]: Knex.Config } = {
     },
     migrations: {
       tableName: 'knex_migrations',
+      directory: './migrations',
     },
   },
 };

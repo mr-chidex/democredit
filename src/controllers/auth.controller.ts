@@ -4,12 +4,13 @@ import { authService } from '../services';
 
 class AuthController {
   async register(req: Request, res: Response) {
-    const response = await authService.register(req.body);
-    return res.json({ authService: response });
+    const { statusCode, ...response } = await authService.register(req.body);
+    return res.status(statusCode || 201).json({ ...response });
   }
 
   async login(req: Request, res: Response) {
-    return res.json({ authService: await authService.login('test') });
+    // const { statusCode, ...response } = await authService.login(req.body);
+    // return res.status(statusCode || 200).json({ ...response });
   }
 }
 

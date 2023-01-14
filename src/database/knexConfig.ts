@@ -5,4 +5,4 @@ import knexConfig from './knexfile';
 
 const knexInstance: Knex.Config = knexConfig[config.NODE_ENV];
 
-export default knex(knexInstance);
+export const db = knex(knexInstance);

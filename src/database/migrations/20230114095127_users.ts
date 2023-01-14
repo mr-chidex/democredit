@@ -8,7 +8,7 @@ export async function up(knex: Knex): Promise<void> {
   }
 
   return knex.schema.createTable(tableName, (table) => {
-    table.uuid('id').primary().notNullable();
+    table.uuid('id').primary().notNullable().defaultTo(knex.raw('(UUID())'));
     table.string('firstName', 100).notNullable();
     table.string('lastName', 100).notNullable();
     table.string('email').unique().notNullable();

@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-const tableName = 'accounts';
+const tableName = 'wallets';
 
 export async function up(knex: Knex): Promise<void> {
   if (await knex.schema.hasTable(tableName)) {

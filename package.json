@@ -15,7 +15,17 @@
     "lint:format": "eslint src/**/*.ts --fix",
     "build": "tsc -p .",
     "build:watch": "tsc --watch",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "migrate:make:dev": "knex migrate:make --knexfile src/database/knexfile.ts -x ts",
+    "migrate:latest:dev": "knex migrate:latest --knexfile src/database/knexfile.ts",
+    "migrate:rollback:dev": "knex migrate:rollback --knexfile src/database/knexfile.ts",
+    "migrate:up:dev": "knex migrate:up  --knexfile src/database/knexfile.ts",
+    "migrate:down:dev": "knex migrate:down  --knexfile src/database/knexfile.ts",
+    "migrate:make": "knex migrate:make --knexfile src/database/knexfile.js",
+    "migrate:latest": "knex migrate:latest --knexfile src/database/knexfile.js",
+    "migrate:rollback": "knex migrate:rollback --knexfile src/database/knexfile.js",
+    "migrate:up": "knex migrate:up --knexfile src/database/knexfile.ts",
+    "migrate:down": "knex migrate:down --knexfile src/database/knexfile.js"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +39,7 @@
     "helmet": "^6.0.1",
     "joi": "^17.7.0",
     "jsonwebtoken": "^9.0.0",
+    "knex": "^2.4.0",
     "morgan": "^1.10.0",
     "winston": "^3.8.2"
   },

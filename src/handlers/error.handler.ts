@@ -1,10 +1,11 @@
 import { format, createLogger, transports, Logger } from 'winston';
 import { Request, Response, NextFunction } from 'express';
 import config from '../config';
+import { Err } from '../models';
 const { timestamp, label, prettyPrint, combine } = format;
 
 export class ErrorHandler {
-  static async error(err: Error, _req: Request, res: Response, _next: NextFunction) {
+  static async error(err: Err, _req: Request, res: Response, _next: NextFunction) {
     const logger: Logger = createLogger({
       level: 'info',
       format: combine(label({ label: 'error occurred' }), timestamp(), prettyPrint()),
@@ -24,6 +25,8 @@ export class ErrorHandler {
       message: err.message,
     });
 
+    const code = err.statusCode || Number(err?.code) || 500;
+
     if (config.NODE_ENV !== 'production') {
       logger.add(
         new transports.Console({
@@ -31,9 +34,9 @@ export class ErrorHandler {
         }),
       );
 
-      return res.status(500).json({ message: err.message, error: true, stack: err.stack });
+      return res.status(code).json({ message: err.message, error: true, stack: err.stack, code });
     }
 
-    res.status(500).json({ message: err.message, error: true });
+    res.status(code).json({ message: err.message, error: true, code });
   }
 }

@@ -8,6 +8,8 @@ import { validateLoginrParams, validateRegisterParams } from '../validators';
 import { walletService } from './wallet.service';
 
 export class AuthService {
+  private tableName = 'users';
+
   async register(body: USER) {
     const { error, value } = validateRegisterParams(body);
 
@@ -37,7 +39,7 @@ export class AuthService {
     //hash password
     const hashPassword = await this.hashPassword(password);
 
-    await db<USER>('users').insert({ firstName, lastName, password: hashPassword, email: formattedEmail });
+    await db<USER>(this.tableName).insert({ firstName, lastName, password: hashPassword, email: formattedEmail });
 
     //on creating user, create wallet for user
     await walletService.createWallet((await this.findUserByEmail(formattedEmail))!.id!);
@@ -65,7 +67,7 @@ export class AuthService {
     const formattedEmail = this.formatEmail(email);
 
     //check if email is correct
-    const user = await db<USER>('users').where({ email: formattedEmail }).first();
+    const user = await db<USER>(this.tableName).where({ email: formattedEmail }).first();
     if (!user)
       return {
         error: true,
@@ -94,7 +96,7 @@ export class AuthService {
   }
 
   async findUserByEmail(email: string) {
-    return await db<USER>('users').where({ email }).first();
+    return await db<USER>(this.tableName).where({ email }).first();
   }
 
   async hashPassword(password: string) {

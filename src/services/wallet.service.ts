@@ -1,13 +1,14 @@
-import Joi from 'joi';
 import { db } from '../database/knexConfig';
-import { WALLET } from '../models';
+import { USER, WALLET } from '../models';
 import { validateAccountUpdate } from '../validators/wallet.validator';
 
 class WalletService {
+  private tableName = 'wallets';
+
   async createWallet(userId: string) {
     const walletId = await this.generateWalletId();
 
-    return await db<WALLET>('wallets').insert({ userId, walletId });
+    return await db<WALLET>(this.tableName).insert({ userId, walletId });
   }
 
   async generateWalletId() {
@@ -18,17 +19,17 @@ class WalletService {
       const walletId = Math.floor(Math.random() * (max - min + 1) + min);
 
       //check if generated id already belongs to a user
-      const walletIdExist = await db<WALLET>('wallets').where({ walletId }).first();
+      const walletIdExist = await db<WALLET>(this.tableName).where({ walletId }).first();
       if (!walletIdExist) {
         return walletId;
       }
     }
   }
 
-  async updateWallet(params: WALLET) {
+  //update user account name, number, and bank name
+  async updateWallet(params: WALLET, user?: USER) {
     const { error, value } = validateAccountUpdate(params);
 
-    //check for errors in body data
     if (error)
       return {
         error: true,
@@ -36,13 +37,11 @@ class WalletService {
         statusCode: 400,
       };
 
-    //validate user ---
-
     const { accountName, accountNo, bankName } = value as WALLET;
 
-    // await db<WALLET>('users').insert({ accountName, accountNo, bankName });
+    await db<WALLET>(this.tableName).where({ userId: user?.id }).update({ accountName, accountNo, bankName });
 
-    return { success: true, message: 'Account successfully updated', data: null, statusCode: 200 };
+    return { success: true, message: 'Account successfully updated', statusCode: 200 };
   }
 }
 

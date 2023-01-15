@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { WALLET } from '../models';
 import { walletService } from '../services';
 
 class WalletController {

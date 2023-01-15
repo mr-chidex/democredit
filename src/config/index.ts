@@ -8,6 +8,7 @@ const config = {
   DB_PASSWORD: process.env.DB_PASSWORD!,
   DB_NAME: process.env.DB_NAME!,
   SECRET_KEY: process.env.SECRET_KEY!,
+  PAYSTACK_SECRET: process.env.PAYSTACK_SECRET,
 };
 
 export default config;

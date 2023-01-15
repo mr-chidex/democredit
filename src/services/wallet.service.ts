@@ -43,6 +43,10 @@ class WalletService {
 
     return { success: true, message: 'Account successfully updated', statusCode: 200 };
   }
+
+  async fundAccount(params: any) {
+    return { success: true, message: 'successful', statusCode: 200 };
+  }
 }
 
 export const walletService = new WalletService();

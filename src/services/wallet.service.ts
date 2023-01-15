@@ -1,5 +1,7 @@
+import Joi from 'joi';
 import { db } from '../database/knexConfig';
 import { WALLET } from '../models';
+import { validateAccountUpdate } from '../validators/wallet.validator';
 
 class WalletService {
   async createWallet(userId: string) {
@@ -21,6 +23,26 @@ class WalletService {
         return walletId;
       }
     }
+  }
+
+  async updateWallet(params: WALLET) {
+    const { error, value } = validateAccountUpdate(params);
+
+    //check for errors in body data
+    if (error)
+      return {
+        error: true,
+        message: error.details[0].message,
+        statusCode: 400,
+      };
+
+    //validate user ---
+
+    const { accountName, accountNo, bankName } = value as WALLET;
+
+    // await db<WALLET>('users').insert({ accountName, accountNo, bankName });
+
+    return { success: true, message: 'Account successfully updated', data: null, statusCode: 200 };
   }
 }
 

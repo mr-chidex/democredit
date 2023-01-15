@@ -5,7 +5,7 @@ import helmet from 'helmet';
 
 import { ErrorHandler } from './handlers';
 import config from './config';
-import { authRoutes } from './routes';
+import { authRoutes, walletRoute } from './routes';
 
 const app: Application = express();
 const apiVersion = config.API_VERSION || 'v1';
@@ -18,6 +18,7 @@ app.use(helmet());
 app.disable('x-powered-by');
 
 app.use(`/api/${apiVersion}/auth`, authRoutes);
+app.use(`/api/${apiVersion}/wallet`, walletRoute);
 
 //error handler
 app.use(ErrorHandler.error);

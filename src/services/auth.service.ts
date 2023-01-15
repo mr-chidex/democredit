@@ -5,6 +5,7 @@ import config from '../config';
 import { db } from '../database/knexConfig';
 import { USER } from '../models';
 import { validateLoginrParams, validateRegisterParams } from '../validators';
+import { walletService } from './wallet.service';
 
 export class AuthService {
   async register(body: USER) {
@@ -36,10 +37,10 @@ export class AuthService {
     //hash password
     const hashPassword = await this.hashPassword(password);
 
-    const user = await db<USER>('users').insert({ firstName, lastName, password: hashPassword, email: formattedEmail });
+    await db<USER>('users').insert({ firstName, lastName, password: hashPassword, email: formattedEmail });
 
     //on creating user, create wallet for user
-    //yet to do
+    await walletService.createWallet((await this.findUserByEmail(formattedEmail))!.id!);
 
     return {
       success: true,
@@ -85,6 +86,7 @@ export class AuthService {
     const token = this.getToken(user);
 
     return {
+      success: true,
       message: 'Login successful',
       data: token,
       statusCode: 200,

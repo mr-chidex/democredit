@@ -9,6 +9,7 @@ const config = {
   DB_NAME: process.env.DB_NAME!,
   SECRET_KEY: process.env.SECRET_KEY!,
   PAYSTACK_SECRET: process.env.PAYSTACK_SECRET,
+  WEBHOOK_URL: process.env.WEBHOOK_URL!,
 };
 
 export default config;

@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { IRequest } from '../models';
 import { walletService } from '../services';
 
@@ -9,17 +9,16 @@ class WalletController {
     return res.status(statusCode || 200).json({ ...response });
   }
 
-  //user funding their account
-  async fundAccount(req: IRequest, res: Response) {
-    const { statusCode, ...response } = await walletService.fundAccount(req.body, req.user!);
+  //user funding their wallet
+  async fundWallet(req: IRequest, res: Response) {
+    const { statusCode, ...response } = await walletService.fundWallet(req.body, req.user!);
     return res.status(statusCode || 200).json({ ...response });
   }
 
   //verify payment upon successful funding of account
-  async verifyPayment(req: IRequest, res: Response) {
+  async verifyPayment(req: Request, res: Response) {
+    await walletService.webHookVerifyPyment(req.body!);
     res.sendStatus(200);
-
-    return await walletService.webHookVerifyPyment(req.body, req.user!);
   }
 }
 

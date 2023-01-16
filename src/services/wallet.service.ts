@@ -2,6 +2,7 @@ import { initializePayment } from '../config/paystack';
 import { db } from '../database/knexConfig';
 import { PayData, USER, WALLET } from '../models';
 import { validateAccountUpdate, validatePayData } from '../validators';
+import { authService } from './auth.service';
 
 class WalletService {
   private tableName = 'wallets';
@@ -41,10 +42,10 @@ class WalletService {
 
     await db<WALLET>(this.tableName).where({ userId: user?.id }).update({ accountName, accountNo, bankName });
 
-    return { success: true, message: 'Account successfully updated', statusCode: 200 };
+    return { success: true, message: 'Account details successfully updated', statusCode: 200 };
   }
 
-  async fundAccount(body: PayData, user: USER) {
+  async fundWallet(body: PayData, user: USER) {
     const { error } = validatePayData(body);
     if (error)
       return {
@@ -72,7 +73,29 @@ class WalletService {
   }
 
   //verify payment using paystack webhook
-  async webHookVerifyPyment(body: any, user: USER) {}
+  async webHookVerifyPyment(body: any) {
+    const { data } = body;
+
+    const email = data?.customer?.email;
+
+    // check if payment was successful
+    if (email && data?.status === 'success') {
+      // get user by email
+      const user = await authService.findUserByEmail(email);
+
+      if (user) {
+        const wallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+
+        //update user wallet balance
+        await db<WALLET>(this.tableName)
+          .where({ id: wallet?.id })
+          .update({ balance: wallet?.balance! + Math.floor(data?.amount / 100) });
+
+        //update wallet transaction history
+        // yet to do
+      }
+    }
+  }
 }
 
 export const walletService = new WalletService();

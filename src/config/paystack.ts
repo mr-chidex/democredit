@@ -1,10 +1,10 @@
 import fetch from 'node-fetch';
 import config from './';
-import { Err } from '../models';
+import { Err, PayData } from '../models';
 
 const SECRET = `Bearer ${config.PAYSTACK_SECRET}`;
 
-export const initializePayment = async (data: any) => {
+export const initializePayment = async (data: PayData) => {
   try {
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',

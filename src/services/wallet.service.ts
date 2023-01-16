@@ -1,6 +1,7 @@
+import { initializePayment } from '../config/paystack';
 import { db } from '../database/knexConfig';
-import { USER, WALLET } from '../models';
-import { validateAccountUpdate } from '../validators/wallet.validator';
+import { PayData, USER, WALLET } from '../models';
+import { validateAccountUpdate, validatePayData } from '../validators';
 
 class WalletService {
   private tableName = 'wallets';
@@ -28,8 +29,7 @@ class WalletService {
 
   //update user account name, number, and bank name
   async updateWallet(params: WALLET, user?: USER) {
-    const { error, value } = validateAccountUpdate(params);
-
+    const { error } = validateAccountUpdate(params);
     if (error)
       return {
         error: true,
@@ -37,15 +37,38 @@ class WalletService {
         statusCode: 400,
       };
 
-    const { accountName, accountNo, bankName } = value as WALLET;
+    const { accountName, accountNo, bankName } = params;
 
     await db<WALLET>(this.tableName).where({ userId: user?.id }).update({ accountName, accountNo, bankName });
 
     return { success: true, message: 'Account successfully updated', statusCode: 200 };
   }
 
-  async fundAccount(params: any) {
-    return { success: true, message: 'successful', statusCode: 200 };
+  async fundAccount(body: PayData, user?: USER) {
+    const { error } = validatePayData(body);
+    if (error)
+      return {
+        error: true,
+        message: error.details[0].message,
+        statusCode: 400,
+      };
+
+    const { amount } = body;
+    if (amount <= 0)
+      return {
+        error: true,
+        message: 'Invalid transaction amount',
+        statusCode: 400,
+      };
+
+    const data = await initializePayment({ email: user?.email, amount: amount * 100 });
+
+    return {
+      status: true,
+      message: 'Payment successfully initialised',
+      data,
+      statusCode: 200,
+    };
   }
 }
 

@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-import { WALLET } from '../models';
+import { PayData, WALLET } from '../models';
 
 export const validateAccountUpdate = (updateParams: WALLET) => {
   return Joi.object({
@@ -8,4 +8,10 @@ export const validateAccountUpdate = (updateParams: WALLET) => {
     accountNo: Joi.string().trim().required(),
     bankName: Joi.string().required(),
   }).validate(updateParams);
+};
+
+export const validatePayData = (data: PayData) => {
+  return Joi.object({
+    amount: Joi.number().required(),
+  }).validate(data);
 };

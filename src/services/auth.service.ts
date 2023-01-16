@@ -11,7 +11,7 @@ export class AuthService {
   private tableName = 'users';
 
   async register(body: USER) {
-    const { error, value } = validateRegisterParams(body);
+    const { error } = validateRegisterParams(body);
 
     //check for errors in body data
     if (error)
@@ -21,7 +21,7 @@ export class AuthService {
         statusCode: 400,
       };
 
-    const { firstName, lastName, email, password } = value as USER;
+    const { firstName, lastName, email, password } = body;
 
     //make email lowercase
     const formattedEmail = this.formatEmail(email);
@@ -52,16 +52,15 @@ export class AuthService {
   }
 
   async login(body: USER) {
-    const { error, value } = validateLoginrParams(body);
-
-    const { email, password } = value as USER;
-
+    const { error } = validateLoginrParams(body);
     if (error)
       return {
         error: true,
         message: error.details[0].message,
         statusCode: 400,
       };
+
+    const { email, password } = body;
 
     //transform email to lowercase
     const formattedEmail = this.formatEmail(email);

@@ -7,3 +7,8 @@ export interface WALLET {
   accountName?: string;
   accountNo?: string;
 }
+
+export interface PayData {
+  email?: string;
+  amount: number;
+}

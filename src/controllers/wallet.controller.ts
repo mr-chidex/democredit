@@ -9,8 +9,9 @@ class WalletController {
     return res.status(statusCode || 200).json({ ...response });
   }
 
-  async fundAccount(req: Request, res: Response) {
-    const { statusCode, ...response } = await walletService.fundAccount(req.body);
+  //user funding their account
+  async fundAccount(req: IRequest, res: Response) {
+    const { statusCode, ...response } = await walletService.fundAccount(req.body, req?.user);
     return res.status(statusCode || 200).json({ ...response });
   }
 }

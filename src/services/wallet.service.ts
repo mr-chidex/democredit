@@ -34,6 +34,15 @@ class WalletService {
     }
   }
 
+  async getWallet(user: USER) {
+    const wallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+    return {
+      success: true,
+      data: wallet,
+      statusCode: 200,
+    };
+  }
+
   //update user account name, number, and bank name
   async updateWallet(params: WALLET, user: USER) {
     const { error } = validateAccountUpdate(params);

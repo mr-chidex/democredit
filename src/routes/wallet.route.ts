@@ -20,4 +20,4 @@ router.route('/transfers').post(authMiddleware.auth, walletController.transferFu
 
 router.route('/withdrawals').post(authMiddleware.auth, walletController.withdrawFunds);
 
-export const walletRoute = router;
+export const walletRoutes = router;

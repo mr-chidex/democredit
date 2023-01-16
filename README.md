@@ -24,6 +24,8 @@ Demo Credit is a mobile lending app that requires wallet functionality. This is 
 
 ### Documentation
 
+Postman: [See documentation](https://documenter.getpostman.com/view/11724511/2s8ZDU64s2)
+
 ### Clone this project
 
 ```

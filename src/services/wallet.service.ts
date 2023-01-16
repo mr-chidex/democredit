@@ -1,6 +1,15 @@
 import { initializePayment } from '../config/paystack';
 import { db } from '../database/knexConfig';
-import { AccountInfo, PayData, TransferPayload, USER, WALLET, WithdrawalPayload } from '../models';
+import {
+  AccountInfo,
+  PayData,
+  TRANSACTION,
+  TransactionType,
+  TransferPayload,
+  USER,
+  WALLET,
+  WithdrawalPayload,
+} from '../models';
 import { minimumAmount } from '../utils';
 import {
   validateAccountUpdate,
@@ -9,6 +18,7 @@ import {
   validateWithdrawalPayload,
 } from '../validators';
 import { authService } from './auth.service';
+import { transactionService } from './transaction.service';
 
 class WalletService {
   private tableName = 'wallets';
@@ -99,13 +109,22 @@ class WalletService {
       const user = await authService.findUserByEmail(email);
 
       if (user) {
+        const wallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+
         //update user wallet balance
         await db<WALLET>(this.tableName)
           .where({ userId: user?.id })
           .increment('balance', Math.floor(data?.amount / 100));
 
         //update wallet transaction history
-        // yet to do
+        await this.saveTransactionHistory(
+          TransactionType.CREDIT,
+          Math.floor(data?.amount / 100),
+          user.id!,
+          wallet?.walletId!,
+          'Bank',
+          'wallet',
+        );
       }
     }
   }
@@ -167,8 +186,25 @@ class WalletService {
     //remove amount from sender wallet
     await db<WALLET>(this.tableName).where({ walletId: userWallet.walletId }).decrement('balance', amount);
 
-    //update on transaction history
-    //yet to do
+    //update sender(user) wallet transaction history
+    await this.saveTransactionHistory(
+      TransactionType.DEBIT,
+      amount,
+      user.id!,
+      userWallet?.walletId!,
+      'me',
+      `${receiverWallet.walletId}`,
+    );
+
+    //update receiver wallet transaction history
+    await this.saveTransactionHistory(
+      TransactionType.CREDIT,
+      amount,
+      receiverWallet.userId,
+      receiverWallet?.walletId!,
+      `${userWallet.walletId}`,
+      'me',
+    );
 
     return { success: true, message: 'Transfer successful', statusCode: 200 };
   }
@@ -218,7 +254,15 @@ class WalletService {
 
     this.demoTransferToBank(userWallet.bankName, userWallet.accountName, userWallet.accountNo);
 
-    //Transaction history - Yet to do
+    //update wallet transaction history
+    await this.saveTransactionHistory(
+      TransactionType.DEBIT,
+      amount,
+      userWallet.userId,
+      userWallet?.walletId!,
+      'democredit',
+      `${userWallet.bankName}-${userWallet.accountNo}-${userWallet.accountName}`,
+    );
 
     return { success: true, message: 'Withdrawal successful', statusCode: 200 };
   }
@@ -231,6 +275,25 @@ class WalletService {
      *
      * ***/
     return;
+  }
+
+  async saveTransactionHistory(
+    type: TransactionType,
+    amount: number,
+    userId: string,
+    walletId: number,
+    from: string,
+    to: string,
+  ) {
+    const payload: TRANSACTION = {
+      type,
+      amount,
+      userId,
+      walletId,
+      from,
+      to,
+    };
+    return await transactionService.addTransaction(payload);
   }
 }
 

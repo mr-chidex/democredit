@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
     table.enu('type', ['DEBIT', 'CREDIT']).notNullable();
     table.bigint('walletId').notNullable();
     table.foreign('walletId').references('walletId').inTable('wallets').onDelete('CASCADE').onUpdate('CASCADE');
-    table.bigint('userId').notNullable();
+    table.uuid('userId').notNullable();
     table.foreign('userId').references('id').inTable('users').onDelete('CASCADE').onUpdate('CASCADE');
     table.double('amount').notNullable();
     table.string('from').nullable();

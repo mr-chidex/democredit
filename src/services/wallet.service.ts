@@ -1,6 +1,7 @@
 import { initializePayment } from '../config/paystack';
 import { db } from '../database/knexConfig';
 import { PayData, TransferPayload, USER, WALLET } from '../models';
+import { minimumAmount } from '../utils';
 import { validateAccountUpdate, validatePayData, validatetransferPayload } from '../validators';
 import { authService } from './auth.service';
 
@@ -55,7 +56,7 @@ class WalletService {
       };
 
     const { amount } = body;
-    if (amount <= 0)
+    if (amount < minimumAmount)
       return {
         error: true,
         message: 'Invalid transaction amount',
@@ -107,7 +108,7 @@ class WalletService {
       };
 
     const { amount, walletId } = body;
-    if (amount <= 0)
+    if (amount < minimumAmount)
       return {
         error: true,
         message: 'Invalid transaction amount',

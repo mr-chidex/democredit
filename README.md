@@ -4,7 +4,7 @@ Demo Credit is a mobile lending app that requires wallet functionality. This is 
 
 ## E-R Diagram
 
-![E-R Diagram](./docs/democredit.png)
+E-R Diagram: [See Diagram](https://dbdesigner.page.link/XAUfPwxHbjBSJc5T72)
 
 ## Features
 

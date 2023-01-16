@@ -59,7 +59,7 @@ class WalletService {
     if (amount < minimumAmount)
       return {
         error: true,
-        message: 'Invalid transaction amount',
+        message: `Invalid transaction amount. Minimum #${minimumAmount}`,
         statusCode: 400,
       };
 
@@ -85,12 +85,10 @@ class WalletService {
       const user = await authService.findUserByEmail(email);
 
       if (user) {
-        const wallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
-
         //update user wallet balance
         await db<WALLET>(this.tableName)
-          .where({ id: wallet?.id })
-          .update({ balance: wallet?.balance! + Math.floor(data?.amount / 100) });
+          .where({ userId: user?.id })
+          .increment('balance', Math.floor(data?.amount / 100));
 
         //update wallet transaction history
         // yet to do
@@ -108,31 +106,57 @@ class WalletService {
       };
 
     const { amount, walletId } = body;
+
     if (amount < minimumAmount)
       return {
         error: true,
-        message: 'Invalid transaction amount',
+        message: `Invalid transaction amount. Minimum ${minimumAmount}`,
         statusCode: 400,
       };
 
-    const isUserWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+    //validate sender wallet
+    const userWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+    if (!userWallet)
+      return {
+        error: true,
+        message: 'Cannot make transfer from this account. Contact support team',
+        statusCode: 403,
+      };
 
-    if (isUserWallet?.walletId === walletId)
+    //validate amount
+    if (userWallet.balance < amount)
+      return {
+        error: true,
+        message: 'Insufficient fund.',
+        statusCode: 400,
+      };
+
+    //validate receiver wallet
+    const receiverWallet = await db<WALLET>(this.tableName).where({ walletId }).first();
+    if (!receiverWallet)
+      return {
+        error: true,
+        message: 'Invalid wallet id.',
+        statusCode: 400,
+      };
+
+    if (receiverWallet.userId === user.id)
       return {
         error: true,
         message: 'Cannot transfer money to self',
         statusCode: 400,
       };
-    const receiverWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
 
-    await db<WALLET>(this.tableName)
-      .where({ walletId })
-      .update({ balance: receiverWallet?.balance! + amount });
+    //top up receiver wallet
+    await db<WALLET>(this.tableName).where({ walletId }).increment('balance', amount);
+
+    //remove amount from sender wallet
+    await db<WALLET>(this.tableName).where({ walletId: userWallet.walletId }).decrement('balance', amount);
 
     //update on transaction history
     //yet to do
 
-    return { success: true, message: 'Amount successfully transfered', statusCode: 200 };
+    return { success: true, message: 'Transfer successful', statusCode: 200 };
   }
 }
 

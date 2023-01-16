@@ -28,7 +28,7 @@ class WalletService {
   }
 
   //update user account name, number, and bank name
-  async updateWallet(params: WALLET, user?: USER) {
+  async updateWallet(params: WALLET, user: USER) {
     const { error } = validateAccountUpdate(params);
     if (error)
       return {
@@ -44,7 +44,7 @@ class WalletService {
     return { success: true, message: 'Account successfully updated', statusCode: 200 };
   }
 
-  async fundAccount(body: PayData, user?: USER) {
+  async fundAccount(body: PayData, user: USER) {
     const { error } = validatePayData(body);
     if (error)
       return {
@@ -70,6 +70,9 @@ class WalletService {
       statusCode: 200,
     };
   }
+
+  //verify payment using paystack webhook
+  async webHookVerifyPyment(body: any, user: USER) {}
 }
 
 export const walletService = new WalletService();

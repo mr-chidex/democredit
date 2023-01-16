@@ -12,4 +12,6 @@ router.route('/fund').post(authMiddleware.auth, walletController.fundWallet);
 // endpoint for wallet funding payment verification and balance update hidden (for test use: '/webhook-verify')
 router.route(config.WEBHOOK_URL).post(walletController.verifyPayment);
 
+router.route('/transfer').post(authMiddleware.auth, walletController.transferFunds);
+
 export const walletRoute = router;

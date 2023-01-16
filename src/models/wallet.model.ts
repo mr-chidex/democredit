@@ -12,3 +12,8 @@ export interface PayData {
   email?: string;
   amount: number;
 }
+
+export interface TransferPayload {
+  amount: number;
+  walletId: number; //receiver's wallet ID
+}

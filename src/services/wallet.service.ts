@@ -1,7 +1,7 @@
 import { initializePayment } from '../config/paystack';
 import { db } from '../database/knexConfig';
-import { PayData, USER, WALLET } from '../models';
-import { validateAccountUpdate, validatePayData } from '../validators';
+import { PayData, TransferPayload, USER, WALLET } from '../models';
+import { validateAccountUpdate, validatePayData, validatetransferPayload } from '../validators';
 import { authService } from './auth.service';
 
 class WalletService {
@@ -95,6 +95,43 @@ class WalletService {
         // yet to do
       }
     }
+  }
+
+  async transferFunds(body: TransferPayload, user: USER) {
+    const { error } = validatetransferPayload(body);
+    if (error)
+      return {
+        error: true,
+        message: error.details[0].message,
+        statusCode: 400,
+      };
+
+    const { amount, walletId } = body;
+    if (amount <= 0)
+      return {
+        error: true,
+        message: 'Invalid transaction amount',
+        statusCode: 400,
+      };
+
+    const isUserWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+
+    if (isUserWallet?.walletId === walletId)
+      return {
+        error: true,
+        message: 'Cannot transfer money to self',
+        statusCode: 400,
+      };
+    const receiverWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+
+    await db<WALLET>(this.tableName)
+      .where({ walletId })
+      .update({ balance: receiverWallet?.balance! + amount });
+
+    //update on transaction history
+    //yet to do
+
+    return { success: true, message: 'Amount successfully transfered', statusCode: 200 };
   }
 }
 

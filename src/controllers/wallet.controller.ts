@@ -20,6 +20,11 @@ class WalletController {
     await walletService.webHookVerifyPyment(req.body!);
     res.sendStatus(200);
   }
+
+  async transferFunds(req: IRequest, res: Response) {
+    const { statusCode, ...response } = await walletService.transferFunds(req.body, req.user!);
+    return res.status(statusCode || 200).json({ ...response });
+  }
 }
 
 export const walletController = new WalletController();

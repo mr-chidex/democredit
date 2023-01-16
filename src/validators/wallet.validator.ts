@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-import { PayData, TransferPayload, WALLET } from '../models';
+import { PayData, TransferPayload, WALLET, WithdrawalPayload } from '../models';
 
 export const validateAccountUpdate = (updateParams: WALLET) => {
   return Joi.object({
@@ -20,5 +20,11 @@ export const validatetransferPayload = (data: TransferPayload) => {
   return Joi.object({
     amount: Joi.number().required(),
     walletId: Joi.number().required(),
+  }).validate(data);
+};
+
+export const validateWithdrawalPayload = (data: WithdrawalPayload) => {
+  return Joi.object({
+    amount: Joi.number().required(),
   }).validate(data);
 };

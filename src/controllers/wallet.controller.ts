@@ -25,6 +25,11 @@ class WalletController {
     const { statusCode, ...response } = await walletService.transferFunds(req.body, req.user!);
     return res.status(statusCode || 200).json({ ...response });
   }
+
+  async withdrawFunds(req: IRequest, res: Response) {
+    const { statusCode, ...response } = await walletService.withdrawFunds(req.body, req.user!);
+    return res.status(statusCode || 200).json({ ...response });
+  }
 }
 
 export const walletController = new WalletController();

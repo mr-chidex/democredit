@@ -17,3 +17,9 @@ export interface TransferPayload {
   amount: number;
   walletId: number; //receiver's wallet ID
 }
+
+export interface WithdrawalPayload {
+  amount: number;
+}
+
+export type AccountInfo = string | undefined;

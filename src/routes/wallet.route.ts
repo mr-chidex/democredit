@@ -13,5 +13,6 @@ router.route('/fund').post(authMiddleware.auth, walletController.fundWallet);
 router.route(config.WEBHOOK_URL).post(walletController.verifyPayment);
 
 router.route('/transfers').post(authMiddleware.auth, walletController.transferFunds);
+router.route('/withdrawals').post(authMiddleware.auth, walletController.withdrawFunds);
 
 export const walletRoute = router;

@@ -1,8 +1,13 @@
 import { initializePayment } from '../config/paystack';
 import { db } from '../database/knexConfig';
-import { PayData, TransferPayload, USER, WALLET } from '../models';
+import { AccountInfo, PayData, TransferPayload, USER, WALLET, WithdrawalPayload } from '../models';
 import { minimumAmount } from '../utils';
-import { validateAccountUpdate, validatePayData, validatetransferPayload } from '../validators';
+import {
+  validateAccountUpdate,
+  validatePayData,
+  validatetransferPayload,
+  validateWithdrawalPayload,
+} from '../validators';
 import { authService } from './auth.service';
 
 class WalletService {
@@ -127,7 +132,7 @@ class WalletService {
     if (userWallet.balance < amount)
       return {
         error: true,
-        message: 'Insufficient fund.',
+        message: 'Insufficient balance.',
         statusCode: 400,
       };
 
@@ -157,6 +162,59 @@ class WalletService {
     //yet to do
 
     return { success: true, message: 'Transfer successful', statusCode: 200 };
+  }
+
+  async withdrawFunds(body: WithdrawalPayload, user: USER) {
+    const { error } = validateWithdrawalPayload(body);
+    if (error)
+      return {
+        error: true,
+        message: error.details[0].message,
+        statusCode: 400,
+      };
+
+    const { amount } = body;
+    if (amount < minimumAmount)
+      return {
+        error: true,
+        message: `Invalid transaction amount. Minimum ${minimumAmount}`,
+        statusCode: 400,
+      };
+
+    const userWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
+    if (!userWallet)
+      return {
+        error: true,
+        message: 'Cannot make withdrawals from this account. Contact support team',
+        statusCode: 403,
+      };
+
+    //validate amount
+    if (userWallet.balance < amount)
+      return {
+        error: true,
+        message: 'Insufficient balance.',
+        statusCode: 400,
+      };
+
+    this.demoTransferToBank(userWallet.bankName, userWallet.accountName, userWallet.accountNo);
+
+    //remove amount from wallet balance
+    await db<WALLET>(this.tableName).where({ walletId: userWallet.walletId }).decrement('balance', amount);
+
+    //Transaction history - Yet to do
+
+    return { success: true, message: 'Withdrawal successful', statusCode: 200 };
+  }
+
+  async demoTransferToBank(bankName: AccountInfo, accountName: AccountInfo, accountNo: AccountInfo) {
+    /***
+     * Assumptiosn
+     * ================
+     * Transfer made to user bank account by admin, thus wallet debited and user bank account credited
+     *
+     * ***/
+    return;
   }
 }
 

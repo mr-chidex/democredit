@@ -206,10 +206,17 @@ class WalletService {
         statusCode: 400,
       };
 
-    this.demoTransferToBank(userWallet.bankName, userWallet.accountName, userWallet.accountNo);
+    if (!userWallet.bankName || !userWallet.accountName || !userWallet.accountNo)
+      return {
+        error: true,
+        message: 'Account details (name, bank and number) must be provided before withdrawals.',
+        statusCode: 400,
+      };
 
     //remove amount from wallet balance
     await db<WALLET>(this.tableName).where({ walletId: userWallet.walletId }).decrement('balance', amount);
+
+    this.demoTransferToBank(userWallet.bankName, userWallet.accountName, userWallet.accountNo);
 
     //Transaction history - Yet to do
 

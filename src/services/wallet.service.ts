@@ -220,7 +220,7 @@ class WalletService {
       `${userWallet.bankName}-${userWallet.accountNo}-${userWallet.accountName}`,
     );
 
-    return { success: true, message: 'Withdrawal successful', statusCode: 200 };
+    return { success: true, message: 'Withdrawal successful' };
   }
 
   async demoTransferToBank(bankName: AccountInfo, accountName: AccountInfo, accountNo: AccountInfo) {

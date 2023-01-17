@@ -46,6 +46,11 @@ E-R Diagram: [See Diagram](https://dbdesigner.page.link/raEsWFHaS1AQzZaA8)
 
 <img  alt="png" src="./assets/democredit-ERD.png" />
 
+## Points To Note
+
+- User must provide bank account details to make withdrawal from their wallet.
+- On funding wallet, a Paystack payment link is sent to user.
+
 ## Clone this project
 
 ```

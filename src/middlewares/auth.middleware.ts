@@ -1,4 +1,4 @@
-import { RequestHandler, Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 import config from '../config';
@@ -7,7 +7,7 @@ import { USER } from '../models';
 import { JWTTOKEN } from '../models/auth.model';
 
 class AuthMiddleware {
-  async auth(req: Request | any, res: Response, next: NextFunction) {
+  async auth(req: Request | any, res: Response | any, next: NextFunction) {
     const { authorization } = req.headers;
 
     if (!authorization?.startsWith('Bearer'))
@@ -17,12 +17,6 @@ class AuthMiddleware {
       });
 
     const token = authorization.replace('Bearer ', '');
-
-    if (!token)
-      return res.status(401).json({
-        error: true,
-        message: 'Unauthorized access: Token not found',
-      });
 
     try {
       const decodeToken = jwt.verify(token, config.SECRET_KEY);

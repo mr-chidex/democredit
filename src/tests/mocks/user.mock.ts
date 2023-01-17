@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-export default {
+export const mockUser1 = {
   firstName: 'test 1',
   lastName: 'user ',
   email: 'testuser@email.com',

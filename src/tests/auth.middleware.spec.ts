@@ -19,13 +19,11 @@ describe('Auth User Middleware', () => {
     });
   });
 
-  it('should return error if authorization header does not start with Bearer', async () => {
+  it('should return error if authorization header is not specified', async () => {
     //**Mocking req and res */
     const req = {
       headers: {
-        authorization: {
-          startsWith: () => false,
-        },
+        authorization: '',
       },
     };
 

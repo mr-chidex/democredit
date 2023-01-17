@@ -2,10 +2,6 @@
 
 Demo Credit is a mobile lending app that requires wallet functionality. This is needed as borrowers need a wallet to receive the loans they have been granted and also send the money for repayments.
 
-## E-R Diagram
-
-E-R Diagram: [See Diagram](https://dbdesigner.page.link/XAUfPwxHbjBSJc5T7)
-
 ## Features
 
 - A user can create an account
@@ -29,6 +25,26 @@ E-R Diagram: [See Diagram](https://dbdesigner.page.link/XAUfPwxHbjBSJc5T7)
 ## Documentation
 
 Postman: [See documentation](https://documenter.getpostman.com/view/11724511/2s8ZDU64s2)
+
+## API Endpoints
+
+```
+users: /api/v1/users
+auth: /api/v1/auth
+wallet: /api/v1/wallet
+transaction history: /api/v1/transactions
+```
+
+## Host
+
+- Hosted on [Railway](https://railway.app/)
+- [Production API Link](chimobi-mbah-lendsqr-be-test.up.railway.app)
+
+## E-R Diagram
+
+E-R Diagram: [See Diagram](https://dbdesigner.page.link/raEsWFHaS1AQzZaA8)
+
+<img  alt="png" src="./public/democredit-ERD.png" />
 
 ## Clone this project
 

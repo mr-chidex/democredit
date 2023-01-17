@@ -26,11 +26,11 @@ E-R Diagram: [See Diagram](https://dbdesigner.page.link/XAUfPwxHbjBSJc5T7)
 - Ngrok for webhook testing
 - Paystack Payment Gateway
 
-### Documentation
+## Documentation
 
 Postman: [See documentation](https://documenter.getpostman.com/view/11724511/2s8ZDU64s2)
 
-### Clone this project
+## Clone this project
 
 ```
 git clone https://github.com/mr-chidex/democredit.git
@@ -40,18 +40,18 @@ git clone https://github.com/mr-chidex/democredit.git
 cd democredit
 ```
 
-### Configure app
+## Configure app
 
 - Create a file named `.env` in the project root directory
 - Add the environment variables as described in `dev.env` file
 
-### Install dependencies
+## Install dependencies
 
 ```
 yarn install
 ```
 
-### Running this project locally
+## Running this project locally
 
 ```
 yarn dev

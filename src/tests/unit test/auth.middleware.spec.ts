@@ -1,6 +1,6 @@
-import { authMiddleware } from '../middlewares';
-import { authService } from '../services';
-import { mockUser1 } from './mocks';
+import { authMiddleware } from '../../middlewares';
+import { authService } from '../../services';
+import { mockUser1 } from '../mocks';
 
 describe('Auth User Middleware', () => {
   let token: any;

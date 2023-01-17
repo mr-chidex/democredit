@@ -1,6 +1,6 @@
-import { USER } from '../models';
-import { authService } from '../services';
-import { mockUser1 } from './mocks';
+import { USER } from '../../models';
+import { authService } from '../../services';
+import { mockUser1 } from '../mocks';
 
 describe('Auth Service', () => {
   describe('Register user', () => {

@@ -10,10 +10,10 @@ class AuthMiddleware {
   async auth(req: Request | any, res: Response | any, next: NextFunction) {
     const { authorization } = req.headers;
 
-    if (!authorization?.startsWith('Bearer'))
-      return res.status(401).json({
+    if (!authorization)
+      return res.status(400).json({
         error: true,
-        message: 'Unauthorized access: Invalid token format',
+        message: 'No authorization header',
       });
 
     const token = authorization.replace('Bearer ', '');

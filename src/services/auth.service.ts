@@ -4,6 +4,7 @@ import config from '../config';
 
 import { db } from '../database/knexConfig';
 import { USER } from '../models';
+import { errorResponse } from '../utils';
 import { validateLoginrParams, validateRegisterParams } from '../validators';
 import { walletService } from './wallet.service';
 
@@ -14,12 +15,9 @@ export class AuthService {
     const { error } = validateRegisterParams(body);
 
     //check for errors in body data
-    if (error)
-      return {
-        error: true,
-        message: error.details[0].message,
-        statusCode: 400,
-      };
+    if (error) {
+      return errorResponse(error.details[0].message, 400);
+    }
 
     const { firstName, lastName, email, password } = body;
 
@@ -29,11 +27,7 @@ export class AuthService {
     //check if email is already in use
     const isEmail = await this.findUserByEmail(formattedEmail);
     if (isEmail) {
-      return {
-        error: true,
-        message: 'Email already in use',
-        statusCode: 400,
-      };
+      return errorResponse('Email already in use', 400);
     }
 
     //hash password
@@ -47,18 +41,14 @@ export class AuthService {
     return {
       success: true,
       message: 'Account successfully created',
-      statusCode: 201,
     };
   }
 
   async login(body: USER) {
     const { error } = validateLoginrParams(body);
-    if (error)
-      return {
-        error: true,
-        message: error.details[0].message,
-        statusCode: 400,
-      };
+    if (error) {
+      return errorResponse(error.details[0].message, 400);
+    }
 
     const { email, password } = body;
 
@@ -67,21 +57,15 @@ export class AuthService {
 
     //check if email is correct
     const user = await db<USER>(this.tableName).where({ email: formattedEmail }).first();
-    if (!user)
-      return {
-        error: true,
-        message: 'Email or Password is incorrect',
-        statusCode: 400,
-      };
+    if (!user) {
+      return errorResponse('Email or Password is incorrect', 400);
+    }
 
     //check if password is correct
     const isPassword = await bcrypt.compare(password, user.password);
-    if (!isPassword)
-      return {
-        error: true,
-        message: 'Email or Password is incorrect',
-        statusCode: 400,
-      };
+    if (!isPassword) {
+      return errorResponse('Email or Password is incorrect', 400);
+    }
 
     //getToken
     const token = this.getToken(user);

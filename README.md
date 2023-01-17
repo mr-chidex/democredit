@@ -44,7 +44,7 @@ transaction history: /api/v1/transactions
 
 E-R Diagram: [See Diagram](https://dbdesigner.page.link/raEsWFHaS1AQzZaA8)
 
-<img  alt="png" src="./public/democredit-ERD.png" />
+<img  alt="png" src="./assets/democredit-ERD.png" />
 
 ## Clone this project
 

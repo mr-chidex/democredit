@@ -38,7 +38,7 @@ transaction history: /api/v1/transactions
 ## Host
 
 - Hosted on [Railway](https://railway.app/)
-- [Production API Link](chimobi-mbah-lendsqr-be-test.up.railway.app)
+- [Production API Link](https://chimobi-lendsqr-be-test.up.railway.app/)
 
 ## E-R Diagram
 

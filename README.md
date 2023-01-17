@@ -1,4 +1,4 @@
-# Democredit
+# Democredit - [Production API Link](https://chimobi-mbah-lendsqr-be-test.up.railway.app/)
 
 Democredit is a mobile lending app that requires wallet functionality. This is needed as borrowers need a wallet to receive the loans they have been granted and also send the money for repayments.
 
@@ -38,7 +38,7 @@ transaction history: /api/v1/transactions
 ## Host
 
 - Hosted on [Railway](https://railway.app/)
-- [Production API Link](https://chimobi-lendsqr-be-test.up.railway.app/)
+- [Production API Link](https://chimobi-mbah-lendsqr-be-test.up.railway.app/)
 
 ## E-R Diagram
 

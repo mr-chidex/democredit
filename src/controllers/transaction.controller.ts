@@ -4,8 +4,8 @@ import { transactionService } from '../services';
 
 class WalletTransactionController {
   async getUserWalletTransactions(req: IRequest, res: Response) {
-    const { statusCode, ...response } = await transactionService.transactionHistory(req.user!);
-    return res.status(statusCode || 200).json({ ...response });
+    const response = await transactionService.transactionHistory(req.user!);
+    return res.status(200).json({ ...response });
   }
 }
 

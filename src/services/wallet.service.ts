@@ -10,7 +10,7 @@ import {
   WALLET,
   WithdrawalPayload,
 } from '../models';
-import { minimumAmount } from '../utils';
+import { errorResponse, minimumAmount } from '../utils';
 import {
   validateAccountUpdate,
   validatePayData,
@@ -49,43 +49,33 @@ class WalletService {
     return {
       success: true,
       data: wallet,
-      statusCode: 200,
     };
   }
 
   //update user account name, number, and bank name
   async updateWallet(params: WALLET, user: USER) {
     const { error } = validateAccountUpdate(params);
-    if (error)
-      return {
-        error: true,
-        message: error.details[0].message,
-        statusCode: 400,
-      };
+    if (error) {
+      return errorResponse(error.details[0].message, 400);
+    }
 
     const { accountName, accountNo, bankName } = params;
 
     await db<WALLET>(this.tableName).where({ userId: user?.id }).update({ accountName, accountNo, bankName });
 
-    return { success: true, message: 'Account details successfully updated', statusCode: 200 };
+    return { success: true, message: 'Account details successfully updated' };
   }
 
   async fundWallet(body: PayData, user: USER) {
     const { error } = validatePayData(body);
-    if (error)
-      return {
-        error: true,
-        message: error.details[0].message,
-        statusCode: 400,
-      };
+    if (error) {
+      return errorResponse(error.details[0].message, 400);
+    }
 
     const { amount } = body;
-    if (amount < minimumAmount)
-      return {
-        error: true,
-        message: `Invalid transaction amount. Minimum #${minimumAmount}`,
-        statusCode: 400,
-      };
+    if (amount < minimumAmount) {
+      return errorResponse(`Invalid transaction amount. Minimum #${minimumAmount}`, 400);
+    }
 
     const data = await initializePayment({ email: user?.email, amount: amount * 100 });
 
@@ -93,7 +83,6 @@ class WalletService {
       status: true,
       message: 'Payment successfully initialised',
       data,
-      statusCode: 200,
     };
   }
 
@@ -131,54 +120,36 @@ class WalletService {
 
   async transferFunds(body: TransferPayload, user: USER) {
     const { error } = validatetransferPayload(body);
-    if (error)
-      return {
-        error: true,
-        message: error.details[0].message,
-        statusCode: 400,
-      };
+    if (error) {
+      return errorResponse(error.details[0].message, 400);
+    }
 
     const { amount, walletId } = body;
 
-    if (amount < minimumAmount)
-      return {
-        error: true,
-        message: `Invalid transaction amount. Minimum ${minimumAmount}`,
-        statusCode: 400,
-      };
+    if (amount < minimumAmount) {
+      return errorResponse(`Invalid transaction amount. Minimum ${minimumAmount}`, 400);
+    }
 
     //validate sender wallet
     const userWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
-    if (!userWallet)
-      return {
-        error: true,
-        message: 'Cannot make transfer from this account. Contact support team',
-        statusCode: 403,
-      };
+    if (!userWallet) {
+      return errorResponse('Cannot make transfer from this account. Contact support team', 403);
+    }
 
     //validate amount
-    if (userWallet.balance < amount)
-      return {
-        error: true,
-        message: 'Insufficient balance.',
-        statusCode: 400,
-      };
+    if (userWallet.balance < amount) {
+      return errorResponse('Insufficient balance.');
+    }
 
     //validate receiver wallet
     const receiverWallet = await db<WALLET>(this.tableName).where({ walletId }).first();
-    if (!receiverWallet)
-      return {
-        error: true,
-        message: 'Invalid wallet id.',
-        statusCode: 400,
-      };
+    if (!receiverWallet) {
+      return errorResponse('Invalid wallet id.');
+    }
 
-    if (receiverWallet.userId === user.id)
-      return {
-        error: true,
-        message: 'Cannot transfer money to self',
-        statusCode: 400,
-      };
+    if (receiverWallet.userId === user.id) {
+      return errorResponse('Cannot transfer money to self');
+    }
 
     //top up receiver wallet
     await db<WALLET>(this.tableName).where({ walletId }).increment('balance', amount);
@@ -211,43 +182,28 @@ class WalletService {
 
   async withdrawFunds(body: WithdrawalPayload, user: USER) {
     const { error } = validateWithdrawalPayload(body);
-    if (error)
-      return {
-        error: true,
-        message: error.details[0].message,
-        statusCode: 400,
-      };
+    if (error) {
+      return errorResponse(error.details[0].message);
+    }
 
     const { amount } = body;
-    if (amount < minimumAmount)
-      return {
-        error: true,
-        message: `Invalid transaction amount. Minimum ${minimumAmount}`,
-        statusCode: 400,
-      };
+    if (amount < minimumAmount) {
+      return errorResponse(`Invalid transaction amount. Minimum ${minimumAmount}`);
+    }
 
     const userWallet = await db<WALLET>(this.tableName).where({ userId: user.id }).first();
-    if (!userWallet)
-      return {
-        error: true,
-        message: 'Cannot make withdrawals from this account. Contact support team',
-        statusCode: 403,
-      };
+    if (!userWallet) {
+      return errorResponse('Cannot make withdrawals from this account. Contact support team', 403);
+    }
 
     //validate amount
-    if (userWallet.balance < amount)
-      return {
-        error: true,
-        message: 'Insufficient balance.',
-        statusCode: 400,
-      };
+    if (userWallet.balance < amount) {
+      return errorResponse('Insufficient balance.');
+    }
 
-    if (!userWallet.bankName || !userWallet.accountName || !userWallet.accountNo)
-      return {
-        error: true,
-        message: 'Account details (name, bank and number) must be provided before withdrawals.',
-        statusCode: 400,
-      };
+    if (!userWallet.bankName || !userWallet.accountName || !userWallet.accountNo) {
+      return errorResponse('Account details (name, bank and number) must be provided before withdrawals.');
+    }
 
     //remove amount from wallet balance
     await db<WALLET>(this.tableName).where({ walletId: userWallet.walletId }).decrement('balance', amount);

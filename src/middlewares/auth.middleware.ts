@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import config from '../config';
 import { db } from '../database/knexConfig';
-import { Err, USER } from '../models';
+import { USER } from '../models';
 import { JWTTOKEN } from '../models/auth.model';
 import { errorResponse } from '../utils';
 
@@ -12,11 +12,11 @@ class AuthMiddleware {
     const { authorization } = req.headers;
 
     if (!authorization) {
-      errorResponse('No authorization header', 401);
+      return errorResponse('No authorization header', 401);
     }
 
     if (!authorization.includes('Bearer')) {
-      errorResponse('Invalid token format', 401);
+      return errorResponse('Invalid token format', 401);
     }
 
     const token = authorization.replace('Bearer ', '');
@@ -29,16 +29,14 @@ class AuthMiddleware {
         .first();
 
       if (!user) {
-        const error: Err = new Error('Unauthorized access: Account does not exist');
-        error.statusCode = 401;
-        throw error;
+        return errorResponse('Unauthorized access: Account does not exist', 401);
       }
 
       req.user = user;
 
       next();
     } catch (err: any) {
-      errorResponse(err.message, 401);
+      return errorResponse(err.message, 401);
     }
   }
 }

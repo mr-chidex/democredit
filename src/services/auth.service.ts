@@ -74,7 +74,6 @@ export class AuthService {
       success: true,
       message: 'Login successful',
       data: token,
-      statusCode: 200,
     };
   }
 

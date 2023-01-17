@@ -13,7 +13,7 @@
     "clean": "rm -rf dist",
     "lint": "eslint src/**/*.ts",
     "lint:format": "eslint src/**/*.ts --fix",
-    "build": "tsc -p .",
+    "build:app": "tsc -p .",
     "build:watch": "tsc --watch",
     "prepare": "husky install",
     "migrate:make:dev": "knex migrate:make --knexfile src/database/knexfile.ts -x ts",

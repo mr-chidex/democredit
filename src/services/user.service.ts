@@ -13,7 +13,6 @@ class UserService {
     return {
       success: true,
       data,
-      statusCode: 200,
     };
   }
 }

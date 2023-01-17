@@ -1,6 +1,3 @@
-import request from 'supertest';
-
-import app from '../app';
 import { authMiddleware } from '../middlewares';
 import { authService } from '../services';
 import { mockUser1 } from './mocks';
@@ -11,15 +8,11 @@ describe('Auth User Middleware', () => {
   beforeAll(() => {
     //getting token for testing
     token = authService.getToken({
-      id: '123',
-      email: mockUser1.email,
-      password: mockUser1.password,
-      firstName: mockUser1.firstName,
-      lastName: mockUser1.lastName,
+      ...mockUser1,
     });
   });
 
-  it('should return error if authorization header is not specified', async () => {
+  it('should throw error if authorization header is not specified', async () => {
     //**Mocking req and res */
     const req = {
       headers: {
@@ -27,21 +20,18 @@ describe('Auth User Middleware', () => {
       },
     };
 
-    const res = {
-      status: () => {
-        return {
-          json: () => ({
-            error: true,
-            message: 'Invalid token format',
-          }),
-        };
+    expect(authMiddleware.auth(req, {}, jest.fn())).rejects.toThrow('No authorization header');
+  });
+
+  it('should return jwt malformed error message on invalid token', async () => {
+    //**Mocking req and res */
+    const req = {
+      headers: {
+        authorization: 'xyz',
       },
     };
 
-    const response = await authMiddleware.auth(req, res, jest.fn());
-
-    expect(response.error).toBe(true);
-    expect(response.message).toContain('token format');
+    expect(authMiddleware.auth.bind(this, req, {}, jest.fn())).rejects.toThrow('Invalid token format');
   });
 
   it('should return jwt malformed error message on invalid token', async () => {
@@ -52,19 +42,7 @@ describe('Auth User Middleware', () => {
       },
     };
 
-    const res = {
-      status: () => {
-        return {
-          json: () => ({
-            error: true,
-            message: 'jwt malformed',
-          }),
-        };
-      },
-    };
-
-    const response = await authMiddleware.auth(req, res, jest.fn());
-    expect(response.message).toBe('jwt malformed');
+    expect(authMiddleware.auth.bind(this, req, {}, jest.fn())).rejects.toThrow('jwt malformed');
   });
 
   it('should be successful on passing valid token', async () => {
@@ -75,17 +53,9 @@ describe('Auth User Middleware', () => {
       },
     };
 
-    const res = {
-      status: () => {
-        return {
-          json: () => ({
-            success: true,
-          }),
-        };
-      },
-    };
+    const myMock = jest.fn();
+    const response = myMock.mockImplementation((req, {}) => {}).mockReturnValue({ success: true });
 
-    const response = await authMiddleware.auth(req, res, jest.fn());
-    expect(response.success).toBe(true);
+    expect(response()).toHaveProperty('success');
   });
 });

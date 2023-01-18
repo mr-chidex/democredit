@@ -16,40 +16,31 @@ exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
 const knexConfig_1 = require("../database/knexConfig");
+const utils_1 = require("../utils");
 class AuthMiddleware {
     auth(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             const { authorization } = req.headers;
-            if (!(authorization === null || authorization === void 0 ? void 0 : authorization.startsWith('Bearer')))
-                return res.status(401).json({
-                    error: true,
-                    message: 'Unauthorized access: Invalid token format',
-                });
+            if (!authorization) {
+                return (0, utils_1.errorResponse)('No authorization header', 401);
+            }
+            if (!authorization.includes('Bearer')) {
+                return (0, utils_1.errorResponse)('Invalid token format', 401);
+            }
             const token = authorization.replace('Bearer ', '');
-            if (!token)
-                return res.status(401).json({
-                    error: true,
-                    message: 'Unauthorized access: Token not found',
-                });
             try {
                 const decodeToken = jsonwebtoken_1.default.verify(token, config_1.default.SECRET_KEY);
                 const user = yield (0, knexConfig_1.db)('users')
                     .where({ id: decodeToken.userId })
                     .first();
                 if (!user) {
-                    return res.status(401).json({
-                        error: true,
-                        message: 'Unauthorized access: Account does not exist',
-                    });
+                    return (0, utils_1.errorResponse)('Unauthorized access: Account does not exist', 401);
                 }
                 req.user = user;
                 next();
             }
-            catch (error) {
-                return res.status(400).json({
-                    error: true,
-                    message: error === null || error === void 0 ? void 0 : error.message,
-                });
+            catch (err) {
+                return (0, utils_1.errorResponse)(err.message, 401);
             }
         });
     }

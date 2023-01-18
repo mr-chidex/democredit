@@ -24,8 +24,8 @@ const knexConfig = {
         },
     },
     production: {
-        client: 'mysql',
-        connection: {
+        client: 'mysql2',
+        connection: process.env.DATABASE_URL || {
             database: process.env.DB_NAME,
             user: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
@@ -40,7 +40,7 @@ const knexConfig = {
         },
     },
     test: {
-        client: 'mysql',
+        client: 'mysql2',
         connection: {
             database: process.env.DB_NAME,
             user: process.env.DB_USERNAME,

@@ -47,7 +47,6 @@ class WalletService {
             return {
                 success: true,
                 data: wallet,
-                statusCode: 200,
             };
         });
     }
@@ -55,39 +54,29 @@ class WalletService {
     updateWallet(params, user) {
         return __awaiter(this, void 0, void 0, function* () {
             const { error } = (0, validators_1.validateAccountUpdate)(params);
-            if (error)
-                return {
-                    error: true,
-                    message: error.details[0].message,
-                    statusCode: 400,
-                };
+            if (error) {
+                return (0, utils_1.errorResponse)(error.details[0].message, 400);
+            }
             const { accountName, accountNo, bankName } = params;
             yield (0, knexConfig_1.db)(this.tableName).where({ userId: user === null || user === void 0 ? void 0 : user.id }).update({ accountName, accountNo, bankName });
-            return { success: true, message: 'Account details successfully updated', statusCode: 200 };
+            return { success: true, message: 'Account details successfully updated' };
         });
     }
     fundWallet(body, user) {
         return __awaiter(this, void 0, void 0, function* () {
             const { error } = (0, validators_1.validatePayData)(body);
-            if (error)
-                return {
-                    error: true,
-                    message: error.details[0].message,
-                    statusCode: 400,
-                };
+            if (error) {
+                return (0, utils_1.errorResponse)(error.details[0].message, 400);
+            }
             const { amount } = body;
-            if (amount < utils_1.minimumAmount)
-                return {
-                    error: true,
-                    message: `Invalid transaction amount. Minimum #${utils_1.minimumAmount}`,
-                    statusCode: 400,
-                };
+            if (amount < utils_1.minimumAmount) {
+                return (0, utils_1.errorResponse)(`Invalid transaction amount. Minimum #${utils_1.minimumAmount}`, 400);
+            }
             const data = yield (0, paystack_1.initializePayment)({ email: user === null || user === void 0 ? void 0 : user.email, amount: amount * 100 });
             return {
                 status: true,
                 message: 'Payment successfully initialised',
                 data,
-                statusCode: 200,
             };
         });
     }
@@ -116,48 +105,30 @@ class WalletService {
     transferFunds(body, user) {
         return __awaiter(this, void 0, void 0, function* () {
             const { error } = (0, validators_1.validatetransferPayload)(body);
-            if (error)
-                return {
-                    error: true,
-                    message: error.details[0].message,
-                    statusCode: 400,
-                };
+            if (error) {
+                return (0, utils_1.errorResponse)(error.details[0].message, 400);
+            }
             const { amount, walletId } = body;
-            if (amount < utils_1.minimumAmount)
-                return {
-                    error: true,
-                    message: `Invalid transaction amount. Minimum ${utils_1.minimumAmount}`,
-                    statusCode: 400,
-                };
+            if (amount < utils_1.minimumAmount) {
+                return (0, utils_1.errorResponse)(`Invalid transaction amount. Minimum ${utils_1.minimumAmount}`, 400);
+            }
             //validate sender wallet
             const userWallet = yield (0, knexConfig_1.db)(this.tableName).where({ userId: user.id }).first();
-            if (!userWallet)
-                return {
-                    error: true,
-                    message: 'Cannot make transfer from this account. Contact support team',
-                    statusCode: 403,
-                };
+            if (!userWallet) {
+                return (0, utils_1.errorResponse)('Cannot make transfer from this account. Contact support team', 403);
+            }
             //validate amount
-            if (userWallet.balance < amount)
-                return {
-                    error: true,
-                    message: 'Insufficient balance.',
-                    statusCode: 400,
-                };
+            if (userWallet.balance < amount) {
+                return (0, utils_1.errorResponse)('Insufficient balance.');
+            }
             //validate receiver wallet
             const receiverWallet = yield (0, knexConfig_1.db)(this.tableName).where({ walletId }).first();
-            if (!receiverWallet)
-                return {
-                    error: true,
-                    message: 'Invalid wallet id.',
-                    statusCode: 400,
-                };
-            if (receiverWallet.userId === user.id)
-                return {
-                    error: true,
-                    message: 'Cannot transfer money to self',
-                    statusCode: 400,
-                };
+            if (!receiverWallet) {
+                return (0, utils_1.errorResponse)('Invalid wallet id.');
+            }
+            if (receiverWallet.userId === user.id) {
+                return (0, utils_1.errorResponse)('Cannot transfer money to self');
+            }
             //top up receiver wallet
             yield (0, knexConfig_1.db)(this.tableName).where({ walletId }).increment('balance', amount);
             //remove amount from sender wallet
@@ -172,45 +143,30 @@ class WalletService {
     withdrawFunds(body, user) {
         return __awaiter(this, void 0, void 0, function* () {
             const { error } = (0, validators_1.validateWithdrawalPayload)(body);
-            if (error)
-                return {
-                    error: true,
-                    message: error.details[0].message,
-                    statusCode: 400,
-                };
+            if (error) {
+                return (0, utils_1.errorResponse)(error.details[0].message);
+            }
             const { amount } = body;
-            if (amount < utils_1.minimumAmount)
-                return {
-                    error: true,
-                    message: `Invalid transaction amount. Minimum ${utils_1.minimumAmount}`,
-                    statusCode: 400,
-                };
+            if (amount < utils_1.minimumAmount) {
+                return (0, utils_1.errorResponse)(`Invalid transaction amount. Minimum ${utils_1.minimumAmount}`);
+            }
             const userWallet = yield (0, knexConfig_1.db)(this.tableName).where({ userId: user.id }).first();
-            if (!userWallet)
-                return {
-                    error: true,
-                    message: 'Cannot make withdrawals from this account. Contact support team',
-                    statusCode: 403,
-                };
+            if (!userWallet) {
+                return (0, utils_1.errorResponse)('Cannot make withdrawals from this account. Contact support team', 403);
+            }
             //validate amount
-            if (userWallet.balance < amount)
-                return {
-                    error: true,
-                    message: 'Insufficient balance.',
-                    statusCode: 400,
-                };
-            if (!userWallet.bankName || !userWallet.accountName || !userWallet.accountNo)
-                return {
-                    error: true,
-                    message: 'Account details (name, bank and number) must be provided before withdrawals.',
-                    statusCode: 400,
-                };
+            if (userWallet.balance < amount) {
+                return (0, utils_1.errorResponse)('Insufficient balance.');
+            }
+            if (!userWallet.bankName || !userWallet.accountName || !userWallet.accountNo) {
+                return (0, utils_1.errorResponse)('Account details (name, bank and number) must be provided before withdrawals.');
+            }
             //remove amount from wallet balance
             yield (0, knexConfig_1.db)(this.tableName).where({ walletId: userWallet.walletId }).decrement('balance', amount);
             this.demoTransferToBank(userWallet.bankName, userWallet.accountName, userWallet.accountNo);
             //update wallet transaction history
             yield this.saveTransactionHistory(models_1.TransactionType.DEBIT, amount, userWallet.userId, userWallet === null || userWallet === void 0 ? void 0 : userWallet.walletId, 'democredit', `${userWallet.bankName}-${userWallet.accountNo}-${userWallet.accountName}`);
-            return { success: true, message: 'Withdrawal successful', statusCode: 200 };
+            return { success: true, message: 'Withdrawal successful' };
         });
     }
     demoTransferToBank(bankName, accountName, accountNo) {

@@ -26,7 +26,6 @@ class WalletTransactionService {
             return {
                 success: true,
                 data: transactions,
-                statusCode: 200,
             };
         });
     }

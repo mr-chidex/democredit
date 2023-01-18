@@ -17,6 +17,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
 const knexConfig_1 = require("../database/knexConfig");
+const utils_1 = require("../utils");
 const validators_1 = require("../validators");
 const wallet_service_1 = require("./wallet.service");
 class AuthService {
@@ -27,23 +28,16 @@ class AuthService {
         return __awaiter(this, void 0, void 0, function* () {
             const { error } = (0, validators_1.validateRegisterParams)(body);
             //check for errors in body data
-            if (error)
-                return {
-                    error: true,
-                    message: error.details[0].message,
-                    statusCode: 400,
-                };
+            if (error) {
+                return (0, utils_1.errorResponse)(error.details[0].message, 400);
+            }
             const { firstName, lastName, email, password } = body;
             //make email lowercase
             const formattedEmail = this.formatEmail(email);
             //check if email is already in use
             const isEmail = yield this.findUserByEmail(formattedEmail);
             if (isEmail) {
-                return {
-                    error: true,
-                    message: 'Email already in use',
-                    statusCode: 400,
-                };
+                return (0, utils_1.errorResponse)('Email already in use', 400);
             }
             //hash password
             const hashPassword = yield this.hashPassword(password);
@@ -53,45 +47,34 @@ class AuthService {
             return {
                 success: true,
                 message: 'Account successfully created',
-                statusCode: 201,
             };
         });
     }
     login(body) {
         return __awaiter(this, void 0, void 0, function* () {
             const { error } = (0, validators_1.validateLoginrParams)(body);
-            if (error)
-                return {
-                    error: true,
-                    message: error.details[0].message,
-                    statusCode: 400,
-                };
+            if (error) {
+                return (0, utils_1.errorResponse)(error.details[0].message, 400);
+            }
             const { email, password } = body;
             //transform email to lowercase
             const formattedEmail = this.formatEmail(email);
             //check if email is correct
             const user = yield (0, knexConfig_1.db)(this.tableName).where({ email: formattedEmail }).first();
-            if (!user)
-                return {
-                    error: true,
-                    message: 'Email or Password is incorrect',
-                    statusCode: 400,
-                };
+            if (!user) {
+                return (0, utils_1.errorResponse)('Email or Password is incorrect', 400);
+            }
             //check if password is correct
             const isPassword = yield bcrypt_1.default.compare(password, user.password);
-            if (!isPassword)
-                return {
-                    error: true,
-                    message: 'Email or Password is incorrect',
-                    statusCode: 400,
-                };
+            if (!isPassword) {
+                return (0, utils_1.errorResponse)('Email or Password is incorrect', 400);
+            }
             //getToken
             const token = this.getToken(user);
             return {
                 success: true,
                 message: 'Login successful',
                 data: token,
-                statusCode: 200,
             };
         });
     }
